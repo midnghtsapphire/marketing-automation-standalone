@@ -1,0 +1,43 @@
+# Marketing Automation Standalone - Dependencies
+
+# Web framework
+flask>=2.3.3
+flask-cors>=4.0.0
+
+# Browser automation
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+
+# HTTP client
+requests>=2.31.0
+
+# Image processing (for social media content generation)
+pillow>=10.0.0
+
+# Data processing
+pandas>=2.1.1
+numpy>=1.24.3
+
+# Configuration
+python-dotenv>=1.0.0
+
+# Logging
+python-json-logger>=2.0.7
+
+# Date/time
+python-dateutil>=2.8.2
+
+# Deployment
+gunicorn>=21.2.0
+
+# Security
+cryptography>=41.0.4
+
+# Scheduling
+apscheduler>=3.10.4
+
+# Email (Blue Ocean)
+# Uses SMTP built-in library; no extra package needed
+
+# Testing
+pytest>=7.4.2

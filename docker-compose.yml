@@ -1,0 +1,50 @@
+# Marketing Automation Standalone - Docker Compose
+version: "3.8"
+
+services:
+  marketing-automation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-automation-standalone
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - SELENIUM_HEADLESS=true
+    volumes:
+      - ./data:/app/data
+      - ./generated_images:/app/generated_images
+    networks:
+      - marketing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Development mode
+  marketing-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-automation-dev
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      - .:/app
+    command: ["python", "website_integration.py"]
+    profiles:
+      - dev
+    networks:
+      - marketing-network
+
+networks:
+  marketing-network:
+    driver: bridge
