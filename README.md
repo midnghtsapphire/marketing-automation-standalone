@@ -131,3 +131,12 @@ Proprietary — All rights reserved by Audrey Evans.
 ---
 
 *Marketing Automation Standalone — Browser-automated marketing for the modern creator.*
+
+---
+
+## Test
+
+| Feature | Status |
+|---------|--------|
+| Feature | ✅ Ready |
+
