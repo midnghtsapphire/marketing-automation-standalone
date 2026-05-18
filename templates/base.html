@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Marketing Automation Standalone{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #667eea;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-2xl font-bold text-white">
+                            <i class="fas fa-rocket mr-2"></i>Marketing Automation
+                        </h1>
+                    </div>
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
+                        <a href="/" class="nav-link text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-1"></i>Dashboard
+                        </a>
+                        <a href="/campaigns" class="nav-link text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-bullhorn mr-1"></i>Campaigns
+                        </a>
+                        <a href="/social-accounts" class="nav-link text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-share-alt mr-1"></i>Social Accounts
+                        </a>
+                        <a href="/affiliate-links" class="nav-link text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-link mr-1"></i>Affiliate Links
+                        </a>
+                        <a href="/analytics" class="nav-link text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-chart-line mr-1"></i>Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-white/80 pb-8">
+        <p class="text-sm">
+            <i class="fas fa-copyright mr-1"></i>2026 Marketing Automation Standalone — Browser-Automated Marketing for Creators
+        </p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

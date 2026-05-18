@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Automation Dashboard - Meet Audrey Evans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-purple-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Marketing Automation</h1>
+            <div class="space-x-4">
+                <a href="/" class="hover:underline">Dashboard</a>
+                <a href="/campaigns" class="hover:underline">Campaigns</a>
+                <a href="/affiliate-links" class="hover:underline">Affiliate Links</a>
+                <a href="/analytics" class="hover:underline">Analytics</a>
+                <a href="/social-accounts" class="hover:underline">Social Accounts</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-600">Total Campaigns</h3>
+                <p class="text-3xl font-bold text-purple-600">{{ data.stats.total_campaigns }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-600">Active Campaigns</h3>
+                <p class="text-3xl font-bold text-green-600">{{ data.stats.active_campaigns }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-600">Total Revenue</h3>
+                <p class="text-3xl font-bold text-blue-600">${{ "%.2f"|format(data.stats.total_revenue) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-600">Conversion Rate</h3>
+                <p class="text-3xl font-bold text-orange-600">{{ "%.1f"|format(data.stats.conversion_rate) }}%</p>
+            </div>
+        </div>
+
+        <!-- Recent Campaigns -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h3 class="text-xl font-bold mb-4">Recent Campaigns</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-2 text-left">Campaign Name</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                            <th class="px-4 py-2 text-left">Budget</th>
+                            <th class="px-4 py-2 text-left">Created</th>
+                            <th class="px-4 py-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in data.campaigns %}
+                        <tr class="border-b">
+                            <td class="px-4 py-2">{{ campaign.name }}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-1 rounded text-sm 
+                                    {% if campaign.status == 'active' %}bg-green-100 text-green-800
+                                    {% elif campaign.status == 'completed' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ campaign.status.title() }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2">${{ "%.2f"|format(campaign.budget) }}</td>
+                            <td class="px-4 py-2">{{ campaign.created_at[:10] }}</td>
+                            <td class="px-4 py-2">
+                                <button onclick="viewCampaign('{{ campaign.campaign_id }}')" 
+                                        class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="/create-campaign" class="block bg-purple-600 text-white text-center py-2 rounded hover:bg-purple-700">
+                        Create New Campaign
+                    </a>
+                    <button onclick="generateQuickLink()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                        Generate Affiliate Link
+                    </button>
+                    <a href="/analytics" class="block bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">
+                        View Analytics
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold mb-4">Platform Performance</h3>
+                <canvas id="platformChart" width="400" height="200"></canvas>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold mb-4">Revenue Trend</h3>
+                <canvas id="revenueChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Platform performance chart
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ data.affiliate_performance.performance_by_medium | map(attribute='medium') | list | tojson }},
+                datasets: [{
+                    data: {{ data.affiliate_performance.performance_by_medium | map(attribute='revenue') | list | tojson }},
+                    backgroundColor: ['#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#3B82F6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Revenue trend chart (placeholder data)
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [120, 190, 300, 500, 200, 300, 450],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function viewCampaign(campaignId) {
+            window.location.href = `/campaigns?id=${campaignId}`;
+        }
+
+        function generateQuickLink() {
+            // Show modal or redirect to affiliate link generator
+            window.location.href = '/affiliate-links';
+        }
+
+        // Auto-refresh performance metrics every 30 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/performance-metrics');
+                const data = await response.json();
+                // Update dashboard metrics
+                console.log('Updated metrics:', data);
+            } catch (error) {
+                console.error('Failed to update metrics:', error);
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
+    

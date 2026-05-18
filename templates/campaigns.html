@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Campaigns — Marketing Automation{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-0">
+    <!-- Header -->
+    <div class="card p-6 mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Marketing Campaigns</h2>
+            <p class="text-gray-600">Manage and monitor your automated campaigns</p>
+        </div>
+        <a href="/create-campaign" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+            <i class="fas fa-plus mr-2"></i>New Campaign
+        </a>
+    </div>
+
+    <!-- Campaigns List -->
+    <div class="space-y-4">
+        {% if campaigns %}
+            {% for campaign in campaigns %}
+            <div class="card p-6">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ campaign.name }}</h3>
+                        <p class="text-gray-600 mb-4">{{ campaign.products|join(', ') if campaign.products else 'No products' }}</p>
+                        
+                        <div class="flex items-center space-x-4 text-sm">
+                            <span class="flex items-center text-gray-500">
+                                <i class="fas fa-calendar mr-1"></i>
+                                {{ campaign.created_at }}
+                            </span>
+                            <span class="flex items-center text-gray-500">
+                                <i class="fas fa-share-alt mr-1"></i>
+                                {{ campaign.platforms|join(', ') if campaign.platforms else 'No platforms' }}
+                            </span>
+                            <span class="px-3 py-1 {% if campaign.status == 'active' %}bg-green-100 text-green-800{% elif campaign.status == 'completed' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-full text-xs font-medium">
+                                {{ campaign.status|capitalize }}
+                            </span>
+                        </div>
+                        
+                        {% if campaign.results %}
+                        <div class="mt-4 grid grid-cols-4 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500">Posts</p>
+                                <p class="text-lg font-semibold text-gray-900">{{ campaign.results.posts_completed or 0 }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Clicks</p>
+                                <p class="text-lg font-semibold text-gray-900">{{ campaign.results.clicks or 0 }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Conversions</p>
+                                <p class="text-lg font-semibold text-gray-900">{{ campaign.results.conversions or 0 }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Revenue</p>
+                                <p class="text-lg font-semibold text-gray-900">${{ "%.2f"|format(campaign.results.revenue or 0) }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="ml-4">
+                        <button class="text-gray-600 hover:text-purple-600 transition">
+                            <i class="fas fa-edit text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="card p-12 text-center">
+            <i class="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No campaigns yet</h3>
+            <p class="text-gray-600 mb-6">Create your first campaign to start automating your marketing</p>
+            <a href="/create-campaign" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition">
+                <i class="fas fa-plus mr-2"></i>Create Your First Campaign
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
