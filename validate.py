@@ -6,9 +6,6 @@ Verifies that Marketing Automation Standalone is ready to ship
 
 import sys
 import os
-import json
-import sqlite3
-import subprocess
 from pathlib import Path
 
 def print_header(text):
