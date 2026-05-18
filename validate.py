@@ -73,41 +73,60 @@ def check_templates():
     return all_exist
 
 def check_dependencies():
-    """Check Python dependencies"""
+    """Check Python dependencies declared in requirements.txt"""
     print_header("Checking Dependencies")
     
-    # Mapping of pip install names to import names (when they differ)
-    package_mapping = {
-        'PIL': 'Pillow',  # pip install Pillow, import PIL
-        'flask_cors': 'flask-cors',  # pip install flask-cors, import flask_cors
-        'dotenv': 'python-dotenv'  # pip install python-dotenv, import dotenv
+    requirements_file = Path('requirements.txt')
+    if not requirements_file.is_file():
+        print("❌ requirements.txt not found")
+        return False
+    
+    # Mapping of requirement/distribution names to import names (when they differ)
+    distribution_to_import = {
+        'pillow': 'PIL',  # pip install Pillow, import PIL
+        'flask-cors': 'flask_cors',  # pip install flask-cors, import flask_cors
+        'python-dotenv': 'dotenv',  # pip install python-dotenv, import dotenv
+        'python-dateutil': 'dateutil',  # pip install python-dateutil, import dateutil
+        'python-json-logger': 'pythonjsonlogger',  # pip install python-json-logger, import pythonjsonlogger
     }
     
-    required_packages = [
-        'flask',
-        'flask_cors',  # Note: pip install flask-cors, but import flask_cors
-        'selenium',
-        'webdriver_manager',
-        'requests',
-        'PIL',  # Note: pip install Pillow, but import PIL
-        'pandas',
-        'numpy',
-        'dotenv',  # Note: pip install python-dotenv, but import dotenv
-        'gunicorn',
-        'apscheduler',
-        'pytest'
-    ]
+    def parse_requirement_name(line):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            return None
+        if line.startswith(('-r', '--', '-e')):
+            return None
+        
+        requirement = line.split('#', 1)[0].strip()
+        for separator in ('==', '>=', '<=', '!=', '~=', '>', '<', ';'):
+            requirement = requirement.split(separator, 1)[0].strip()
+        requirement = requirement.split('[', 1)[0].strip()
+        
+        return requirement or None
+    
+    required_distributions = []
+    seen = set()
+    for line in requirements_file.read_text(encoding='utf-8').splitlines():
+        requirement_name = parse_requirement_name(line)
+        if requirement_name:
+            normalized_name = requirement_name.lower()
+            if normalized_name not in seen:
+                seen.add(normalized_name)
+                required_distributions.append(requirement_name)
     
     all_installed = True
-    for package in required_packages:
+    for distribution in required_distributions:
+        normalized_distribution = distribution.lower()
+        import_name = distribution_to_import.get(
+            normalized_distribution,
+            normalized_distribution.replace('-', '_')
+        )
         try:
-            __import__(package)
-            pip_name = package_mapping.get(package, package)
-            note = f" (pip install {pip_name})" if package in package_mapping else ""
-            print(f"✅ {package}{note}")
+            __import__(import_name)
+            note = f" (import as {import_name})" if import_name != distribution else ""
+            print(f"✅ {distribution}{note}")
         except ImportError:
-            pip_name = package_mapping.get(package, package)
-            print(f"❌ {package} (not installed - run: pip install {pip_name})")
+            print(f"❌ {distribution} (not installed - run: pip install {distribution})")
             all_installed = False
     
     return all_installed
