@@ -19,7 +19,7 @@ Following the "[WR] Ship to market" issue and revvel-standards, I conducted deep
 - **Browser Automation**: No API dependency = works forever, never breaks
 - **TikTok Native**: Only platform with TikTok support (competitors don't have this)
 - **Self-Hosted**: Complete data ownership, $7-20/month vs $49-890/month
-- **FOSS**: Python + Flask, fully transparent and customizable
+- **Built on FOSS Components**: Python + Flask stack, transparent architecture and customizable deployment
 - **98% Cost Reduction**: Disrupts pricing model entirely
 
 ### 3. Production-Ready Code
