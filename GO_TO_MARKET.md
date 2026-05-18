@@ -15,7 +15,7 @@
 | ActiveCampaign | $49-79/mo | API limits, SaaS lock-in | Self-hosted, no API costs |
 | Mailchimp | $13+/mo | Limited automation depth | Full workflow engine |
 | Buffer/Hootsuite | $12-120/mo | API-only (breaks when APIs change) | Browser automation (never breaks) |
-| Levanta (Affiliate) | $$$$ | Enterprise-only pricing | Free, open-source core |
+| Levanta (Affiliate) | $$$$ | Enterprise-only pricing | Affordable, self-hosted alternative |
 
 ### Blue Ocean Opportunities
 
