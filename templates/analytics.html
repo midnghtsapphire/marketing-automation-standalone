@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Marketing Automation{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-0">
+    <!-- Header -->
+    <div class="card p-6 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Campaign Analytics</h2>
+        <p class="text-gray-600">Track performance across all platforms</p>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="card p-6 mb-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Revenue Over Time</h3>
+        <canvas id="revenueChart" height="100"></canvas>
+    </div>
+
+    <!-- Platform Performance -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="card p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Platform Performance</h3>
+            <canvas id="platformChart"></canvas>
+        </div>
+        
+        <div class="card p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Top Performers</h3>
+            <div class="space-y-4">
+                {% if data and data.platform_performance %}
+                    {% for platform in data.platform_performance[:3] %}
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fab fa-{{ platform.platform|lower }} text-purple-600 text-2xl mr-3"></i>
+                            <span class="font-medium">{{ platform.platform|capitalize }}</span>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900">${{ "%.2f"|format(platform.revenue) }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-chart-bar text-4xl mb-2"></i>
+                    <p>No data yet — Start a campaign to see analytics</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Metrics -->
+    <div class="card p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Detailed Metrics</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impressions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTR</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conversions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% if data and data.daily_performance %}
+                        {% for day in data.daily_performance[-7:] %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ day.date }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ day.impressions }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ day.clicks }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ "%.1f"|format((day.clicks / day.impressions * 100) if day.impressions > 0 else 0) }}%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ day.conversions }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">${{ "%.2f"|format(day.revenue) }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No analytics data available yet
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Revenue Over Time Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueData = {{ data.daily_performance|tojson if data and data.daily_performance else '[]'|safe }};
+    
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: revenueData.map(d => d.date),
+            datasets: [{
+                label: 'Revenue ($)',
+                data: revenueData.map(d => d.revenue),
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Platform Performance Chart
+    const platformCtx = document.getElementById('platformChart').getContext('2d');
+    const platformData = {{ data.platform_performance|tojson if data and data.platform_performance else '[]'|safe }};
+    
+    new Chart(platformCtx, {
+        type: 'doughnut',
+        data: {
+            labels: platformData.map(p => p.platform),
+            datasets: [{
+                data: platformData.map(p => p.revenue),
+                backgroundColor: [
+                    '#E1306C',
+                    '#0077B5',
+                    '#000000',
+                    '#1877F2',
+                    '#1DA1F2'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

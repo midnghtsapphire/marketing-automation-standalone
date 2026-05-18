@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Campaign - Marketing Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-purple-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Marketing Automation</h1>
+            <div class="space-x-4">
+                <a href="/" class="hover:underline">Dashboard</a>
+                <a href="/campaigns" class="hover:underline">Campaigns</a>
+                <a href="/affiliate-links" class="hover:underline">Affiliate Links</a>
+                <a href="/analytics" class="hover:underline">Analytics</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        <h2 class="text-3xl font-bold mb-6">Create New Campaign</h2>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <form id="campaignForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Campaign Name</label>
+                    <input type="text" id="campaignName" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="e.g., Qahwa Coffee Holiday Campaign">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Products</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {% for product in products %}
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="products" value="{{ product }}" 
+                                   class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                            <span class="text-sm">{{ product.replace('_', ' ').title() }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Platforms</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {% for platform in platforms %}
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="platforms" value="{{ platform }}" 
+                                   class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                            <span class="text-sm">{{ platform.title() }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Campaign Duration (days)</label>
+                        <input type="number" id="duration" value="7" min="1" max="365"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Budget ($)</label>
+                        <input type="number" id="budget" value="500" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" 
+                            class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        Create Campaign
+                    </button>
+                    <button type="button" onclick="createAndLaunch()" 
+                            class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        Create & Launch Now
+                    </button>
+                    <a href="/campaigns" 
+                       class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('campaignForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await createCampaign(false);
+        });
+
+        async function createCampaign(launch = false) {
+            const formData = new FormData(document.getElementById('campaignForm'));
+            
+            const data = {
+                name: document.getElementById('campaignName').value,
+                products: Array.from(document.querySelectorAll('input[name="products"]:checked')).map(cb => cb.value),
+                platforms: Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value),
+                duration_days: parseInt(document.getElementById('duration').value),
+                budget: parseFloat(document.getElementById('budget').value)
+            };
+
+            if (data.products.length === 0) {
+                alert('Please select at least one product');
+                return;
+            }
+
+            if (data.platforms.length === 0) {
+                alert('Please select at least one platform');
+                return;
+            }
+
+            try {
+                const response = await fetch('/create-campaign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (launch) {
+                        // Launch immediately
+                        const launchResponse = await fetch(`/launch-campaign/${result.campaign_id}`, {
+                            method: 'POST'
+                        });
+                        const launchResult = await launchResponse.json();
+                        
+                        if (launchResult.success) {
+                            alert(`Campaign created and launched! Success rate: ${launchResult.results.success_rate.toFixed(1)}%`);
+                        } else {
+                            alert(`Campaign created but launch failed: ${launchResult.message}`);
+                        }
+                    } else {
+                        alert('Campaign created successfully!');
+                    }
+                    
+                    window.location.href = '/campaigns';
+                } else {
+                    alert(`Failed to create campaign: ${result.message}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function createAndLaunch() {
+            await createCampaign(true);
+        }
+    </script>
+</body>
+</html>
+    

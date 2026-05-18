@@ -11,7 +11,6 @@ services:
     ports:
       - "${PORT:-5000}:5000"
     environment:
-      - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - SELENIUM_HEADLESS=true
     volumes:
@@ -20,7 +19,7 @@ services:
     networks:
       - marketing-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,7 +34,6 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=development
       - FLASK_DEBUG=1
     volumes:
       - .:/app
