@@ -112,59 +112,73 @@ web_integration = WebsiteIntegration()
 def dashboard():
     """Main dashboard showing campaign overview"""
     
-    # Get recent campaigns
-    conn = sqlite3.connect('marketing_automation.db')
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT campaign_id, name, status, created_at, budget, results
-        FROM user_campaigns 
-        ORDER BY created_at DESC 
-        LIMIT 10
-    ''')
-    
-    campaigns = []
-    for row in cursor.fetchall():
-        campaign_data = {
-            'campaign_id': row[0],
-            'name': row[1],
-            'status': row[2],
-            'created_at': row[3],
-            'budget': row[4],
-            'results': json.loads(row[5]) if row[5] else {}
+    try:
+        # Get recent campaigns
+        conn = sqlite3.connect('marketing_automation.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT campaign_id, name, status, created_at, budget, results
+            FROM user_campaigns 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        ''')
+        
+        campaigns = []
+        for row in cursor.fetchall():
+            campaign_data = {
+                'campaign_id': row[0],
+                'name': row[1],
+                'status': row[2],
+                'created_at': row[3],
+                'budget': row[4],
+                'results': json.loads(row[5]) if row[5] else {}
+            }
+            campaigns.append(campaign_data)
+        
+        # Get overall performance metrics
+        cursor.execute('''
+            SELECT 
+                COUNT(*) as total_campaigns,
+                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_campaigns,
+                AVG(budget) as avg_budget
+            FROM user_campaigns
+        ''')
+        
+        stats = cursor.fetchone()
+        
+        # Get affiliate performance
+        try:
+            affiliate_report = affiliate_generator.generate_link_report()
+            total_revenue = affiliate_report['overall_performance']['total_revenue']
+            total_clicks = affiliate_report['overall_performance']['total_clicks']
+            conversion_rate = affiliate_report['overall_performance']['overall_conversion_rate']
+        except:
+            total_revenue = 0
+            total_clicks = 0
+            conversion_rate = 0
+            affiliate_report = {}
+        
+        conn.close()
+        
+        dashboard_data = {
+            'campaigns': campaigns,
+            'stats': {
+                'total_campaigns': stats[0] or 0,
+                'active_campaigns': stats[1] or 0,
+                'avg_budget': stats[2] or 0,
+                'total_revenue': total_revenue,
+                'total_clicks': total_clicks,
+                'conversion_rate': conversion_rate
+            },
+            'affiliate_performance': affiliate_report
         }
-        campaigns.append(campaign_data)
-    
-    # Get overall performance metrics
-    cursor.execute('''
-        SELECT 
-            COUNT(*) as total_campaigns,
-            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_campaigns,
-            AVG(budget) as avg_budget
-        FROM user_campaigns
-    ''')
-    
-    stats = cursor.fetchone()
-    
-    # Get affiliate performance
-    affiliate_report = affiliate_generator.generate_link_report()
-    
-    conn.close()
-    
-    dashboard_data = {
-        'campaigns': campaigns,
-        'stats': {
-            'total_campaigns': stats[0] or 0,
-            'active_campaigns': stats[1] or 0,
-            'avg_budget': stats[2] or 0,
-            'total_revenue': affiliate_report['overall_performance']['total_revenue'],
-            'total_clicks': affiliate_report['overall_performance']['total_clicks'],
-            'conversion_rate': affiliate_report['overall_performance']['overall_conversion_rate']
-        },
-        'affiliate_performance': affiliate_report
-    }
-    
-    return render_template('dashboard.html', data=dashboard_data)
+        
+        return render_template('dashboard.html', data=dashboard_data)
+    except Exception as e:
+        logger.error(f"Dashboard error: {str(e)}")
+        # Return empty dashboard if database doesn't exist yet
+        return render_template('dashboard.html', data=None)
 
 @app.route('/campaigns')
 def campaigns():
@@ -482,52 +496,76 @@ def content_templates():
 def analytics():
     """Campaign analytics and performance dashboard"""
     
-    # Get campaign analytics
-    conn = sqlite3.connect('marketing_automation.db')
-    cursor = conn.cursor()
-    
-    # Daily performance over last 30 days
-    cursor.execute('''
-        SELECT date, SUM(impressions), SUM(clicks), SUM(conversions), SUM(revenue)
-        FROM campaign_analytics
-        WHERE date >= date('now', '-30 days')
-        GROUP BY date
-        ORDER BY date
-    ''')
-    
-    daily_performance = []
-    for row in cursor.fetchall():
-        daily_performance.append({
-            'date': row[0],
-            'impressions': row[1] or 0,
-            'clicks': row[2] or 0,
-            'conversions': row[3] or 0,
-            'revenue': row[4] or 0.0
-        })
-    
-    # Platform performance
-    cursor.execute('''
-        SELECT platform, SUM(clicks), SUM(conversions), SUM(revenue)
-        FROM campaign_analytics
-        WHERE date >= date('now', '-30 days')
-        GROUP BY platform
-        ORDER BY revenue DESC
-    ''')
-    
-    platform_performance = []
-    for row in cursor.fetchall():
-        platform_performance.append({
-            'platform': row[0],
-            'clicks': row[1] or 0,
-            'conversions': row[2] or 0,
-            'revenue': row[3] or 0.0,
-            'conversion_rate': (row[2] / row[1] * 100) if row[1] > 0 else 0
-        })
-    
-    conn.close()
-    
-    # Get affiliate link analytics
-    affiliate_report = affiliate_generator.generate_link_report()
+    try:
+        # Get campaign analytics
+        conn = sqlite3.connect('marketing_automation.db')
+        cursor = conn.cursor()
+        
+        # Daily performance over last 30 days
+        cursor.execute('''
+            SELECT date, SUM(impressions), SUM(clicks), SUM(conversions), SUM(revenue)
+            FROM campaign_analytics
+            WHERE date >= date('now', '-30 days')
+            GROUP BY date
+            ORDER BY date
+        ''')
+        
+        daily_performance = []
+        for row in cursor.fetchall():
+            daily_performance.append({
+                'date': row[0],
+                'impressions': row[1] or 0,
+                'clicks': row[2] or 0,
+                'conversions': row[3] or 0,
+                'revenue': row[4] or 0.0
+            })
+        
+        # Platform performance
+        cursor.execute('''
+            SELECT platform, SUM(clicks), SUM(conversions), SUM(revenue)
+            FROM campaign_analytics
+            WHERE date >= date('now', '-30 days')
+            GROUP BY platform
+            ORDER BY revenue DESC
+        ''')
+        
+        platform_performance = []
+        for row in cursor.fetchall():
+            platform_performance.append({
+                'platform': row[0],
+                'clicks': row[1] or 0,
+                'conversions': row[2] or 0,
+                'revenue': row[3] or 0.0,
+                'conversion_rate': (row[2] / row[1] * 100) if row[1] > 0 else 0
+            })
+        
+        conn.close()
+        
+        # Get affiliate link analytics
+        try:
+            affiliate_report = affiliate_generator.generate_link_report()
+            conversion_rate = affiliate_report['overall_performance']['overall_conversion_rate']
+        except:
+            affiliate_report = {}
+            conversion_rate = 0
+        
+        analytics_data = {
+            'daily_performance': daily_performance,
+            'platform_performance': platform_performance,
+            'affiliate_report': affiliate_report,
+            'summary': {
+                'total_revenue': sum(day['revenue'] for day in daily_performance),
+                'total_clicks': sum(day['clicks'] for day in daily_performance),
+                'total_conversions': sum(day['conversions'] for day in daily_performance),
+                'avg_conversion_rate': conversion_rate
+            }
+        }
+        
+        return render_template('analytics.html', data=analytics_data)
+    except Exception as e:
+        logger.error(f"Analytics error: {str(e)}")
+        # Return empty analytics if database doesn't exist yet
+        return render_template('analytics.html', data=None)
     
     analytics_data = {
         'daily_performance': daily_performance,
