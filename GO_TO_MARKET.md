@@ -166,7 +166,7 @@
 ## Key Messages for Launch
 
 ### For Reddit / Hacker News
-"I built a self-hosted marketing automation tool that uses browser automation instead of APIs. It works with TikTok, Instagram, Facebook, Twitter, LinkedIn — basically any platform. Free & open source. Costs $7/month if you deploy to DigitalOcean instead of $890/month for HubSpot."
+"I built a self-hosted marketing automation tool that uses browser automation instead of APIs. It works with TikTok, Instagram, Facebook, Twitter, LinkedIn — basically any platform. Built with open-source components (Python/Flask). Costs $7/month if you deploy to DigitalOcean instead of $890/month for HubSpot."
 
 ### For Product Hunt
 "Marketing Automation Standalone — Browser-based social media automation with TikTok support. Self-hosted, no API lock-in, $7/month instead of $890/month."
@@ -178,7 +178,7 @@
 ✅ TikTok support
 ✅ Affiliate tracking
 ✅ Email campaigns
-✅ Free & open source
+✅ Built with open-source stack
 
 [GitHub link]"
 

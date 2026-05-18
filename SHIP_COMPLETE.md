@@ -176,7 +176,7 @@ open http://localhost:5000
 | **API Dependency** | None | High | High | High |
 | **Data Ownership** | Complete | None | None | None |
 | **Self-Hosted** | Yes | No | No | No |
-| **Open Source** | Yes | No | No | No |
+| **Built with FOSS** | Yes | No | No | No |
 
 **Cost Comparison**: We're 98% cheaper than HubSpot, 85% cheaper than ActiveCampaign.
 
