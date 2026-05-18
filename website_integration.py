@@ -999,12 +999,20 @@ def create_html_templates():
 @app.route('/health')
 def health_check():
     """Health check endpoint for monitoring"""
-    return jsonify({
-        'status': 'healthy',
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
+    templates_ready = os.path.isdir('templates')
+
+    response = {
+        'status': 'healthy' if templates_ready else 'unhealthy',
         'service': 'Marketing Automation Standalone',
         'version': '1.0.0',
-        'timestamp': datetime.datetime.now().isoformat()
-    }), 200
+        'timestamp': timestamp,
+        'checks': {
+            'templates_directory_exists': templates_ready
+        }
+    }
+
+    return jsonify(response), 200 if templates_ready else 503
 
 if __name__ == '__main__':
     # Create HTML templates
