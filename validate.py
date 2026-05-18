@@ -79,16 +79,23 @@ def check_dependencies():
     """Check Python dependencies"""
     print_header("Checking Dependencies")
     
+    # Mapping of pip install names to import names (when they differ)
+    package_mapping = {
+        'PIL': 'Pillow',  # pip install Pillow, import PIL
+        'flask_cors': 'flask-cors',  # pip install flask-cors, import flask_cors
+        'dotenv': 'python-dotenv'  # pip install python-dotenv, import dotenv
+    }
+    
     required_packages = [
         'flask',
-        'flask_cors',
+        'flask_cors',  # Note: pip install flask-cors, but import flask_cors
         'selenium',
         'webdriver_manager',
         'requests',
-        'PIL',
+        'PIL',  # Note: pip install Pillow, but import PIL
         'pandas',
         'numpy',
-        'dotenv',
+        'dotenv',  # Note: pip install python-dotenv, but import dotenv
         'gunicorn',
         'apscheduler',
         'pytest'
@@ -98,9 +105,12 @@ def check_dependencies():
     for package in required_packages:
         try:
             __import__(package)
-            print(f"✅ {package}")
+            pip_name = package_mapping.get(package, package)
+            note = f" (pip install {pip_name})" if package in package_mapping else ""
+            print(f"✅ {package}{note}")
         except ImportError:
-            print(f"❌ {package} (not installed)")
+            pip_name = package_mapping.get(package, package)
+            print(f"❌ {package} (not installed - run: pip install {pip_name})")
             all_installed = False
     
     return all_installed
