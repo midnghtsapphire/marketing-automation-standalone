@@ -958,6 +958,16 @@ def create_html_templates():
     with open('templates/create_campaign.html', 'w') as f:
         f.write(create_campaign_html)
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'Marketing Automation Standalone',
+        'version': '1.0.0',
+        'timestamp': datetime.datetime.now().isoformat()
+    }), 200
+
 if __name__ == '__main__':
     # Create HTML templates
     create_html_templates()
