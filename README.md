@@ -19,7 +19,7 @@
 1. **Browser Automation** — No API dependency. Works forever, even when APIs change/break.
 2. **TikTok Native** — Early mover in TikTok automation space (competitors don't have this).
 3. **Self-Hosted** — Complete data ownership, no vendor lock-in, no monthly SaaS fees.
-4. **FOSS Stack** — Python + Flask, fully transparent and customizable.
+4. **Built on FOSS Dependencies** — Uses open-source components like Python and Flask, while this project remains separately licensed.
 5. **98% Cheaper** — $7-20/month vs $49-890/month competitors.
 
 ## Features
