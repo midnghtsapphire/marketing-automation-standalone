@@ -137,7 +137,6 @@ def check_env_example():
     
     required_vars = [
         'FLASK_APP',
-        'FLASK_ENV',
         'SECRET_KEY',
         'HOST',
         'PORT',

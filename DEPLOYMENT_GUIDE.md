@@ -154,8 +154,7 @@ Critical security settings:
 - [ ] `SECRET_KEY` — Generate with `python -c "import secrets; print(secrets.token_hex(32))"`
 - [ ] `SELENIUM_HEADLESS=true` — Must be true for server deployment
 - [ ] Social media credentials encrypted (implement encryption in production)
-- [ ] `FLASK_ENV=production`
-- [ ] `FLASK_DEBUG=0`
+- [ ] `FLASK_DEBUG=0` — Disables debug mode (Flask 2.3+ defaults to production)
 
 ## Monitoring
 
