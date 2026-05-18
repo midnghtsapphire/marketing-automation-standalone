@@ -179,13 +179,14 @@ def check_docker():
         has_python = 'python:3.11' in dockerfile.lower()
         has_gunicorn = 'gunicorn' in dockerfile.lower()
         has_healthcheck = 'HEALTHCHECK' in dockerfile
+        has_health_endpoint = '/health' in dockerfile
         
         print(f"{check_mark(has_chrome)} Chrome/Selenium installation")
         print(f"{check_mark(has_python)} Python 3.11 base image")
         print(f"{check_mark(has_gunicorn)} Gunicorn WSGI server")
-        print(f"{check_mark(has_healthcheck)} Health check configured")
+        print(f"{check_mark(has_healthcheck and has_health_endpoint)} Health check configured (/health endpoint)")
         
-        checks.extend([has_chrome, has_python, has_gunicorn, has_healthcheck])
+        checks.extend([has_chrome, has_python, has_gunicorn, has_healthcheck and has_health_endpoint])
     else:
         print("❌ Dockerfile not found")
         return False
@@ -196,14 +197,15 @@ def check_docker():
             compose = f.read()
         
         has_healthcheck = 'healthcheck:' in compose
+        has_health_endpoint = '/health' in compose
         has_ports = '5000:5000' in compose or '${PORT' in compose
         has_volumes = 'volumes:' in compose
         
-        print(f"{check_mark(has_healthcheck)} Health check in compose")
+        print(f"{check_mark(has_healthcheck and has_health_endpoint)} Health check in compose (/health endpoint)")
         print(f"{check_mark(has_ports)} Port mapping configured")
         print(f"{check_mark(has_volumes)} Volume mounting for data")
         
-        checks.extend([has_healthcheck, has_ports, has_volumes])
+        checks.extend([has_healthcheck and has_health_endpoint, has_ports, has_volumes])
     else:
         print("❌ docker-compose.yml not found")
         return False
