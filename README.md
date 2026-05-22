@@ -165,6 +165,15 @@ All checks should pass:
 - ✅ Documentation complete
 - ✅ Market research documented
 
+## Revvel-Standards / S2M
+
+This repository now carries an explicit local revvel-standards process reference for S2M work requests:
+
+- [`revvel-standards/docs/S2M_PROCESS.md`](revvel-standards/docs/S2M_PROCESS.md) — defines what “S2M” means in this repository and when to create deep-research artifacts.
+- [`revvel-standards/docs/XHUMANITY_PROJECT.md`](revvel-standards/docs/XHUMANITY_PROJECT.md) — project charter and project-management setup for the requested `xHumanity` project.
+
+If a work request is marked **S2M**, it should route through these documents before being considered ship-ready.
+
 ## Market Position
 
 ### Target Customers
@@ -182,4 +191,3 @@ All checks should pass:
 | Data Ownership | ✅ | ❌ | ❌ | ❌ |
 
 **See [GO_TO_MARKET.md](GO_TO_MARKET.md) for full competitive analysis and launch strategy.**
-
