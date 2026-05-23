@@ -34,7 +34,9 @@ def check_files():
         'CHANGELOG.md',
         'DEPLOYMENT_GUIDE.md',
         'GO_TO_MARKET.md',
-        'AGENTS.md'
+        'AGENTS.md',
+        'revvel-standards/docs/S2M_PROCESS.md',
+        'revvel-standards/docs/XHUMANITY_PROJECT.md'
     ]
     
     all_exist = True
@@ -219,7 +221,9 @@ def check_documentation():
         'README.md': ['Quick Start', 'Features', 'Tech Stack', 'Docker'],
         'DEPLOYMENT_GUIDE.md': ['Quick Deploy', 'Production', 'DigitalOcean'],
         'GO_TO_MARKET.md': ['Market Research', 'Competitive Analysis', 'Launch Plan'],
-        'CHANGELOG.md': ['[1.0.0]', 'Added', 'Production-Ready']
+        'CHANGELOG.md': ['[1.0.0]', 'Added', 'Production-Ready'],
+        'revvel-standards/docs/S2M_PROCESS.md': ['S2M', 'revvel-standards', 'Deep Research'],
+        'revvel-standards/docs/XHUMANITY_PROJECT.md': ['xHumanity', 'GitHub Project', 'Linear']
     }
     
     all_complete = True
